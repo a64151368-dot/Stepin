@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Властивості степеня з раціональним показником</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marck+Script&family=Cormorant+Garamond:ital,wght@1,600;1,700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#ffd66b;--ink:#fff7ec;--night:#0d0818}
+html,body{height:100%}
+body{font-family:'Nunito',sans-serif;color:var(--ink);background:var(--night);overflow:hidden}
+
+.stage{position:relative;width:100%;height:100vh;height:100svh;overflow:hidden;background:#140c08}
+#scene{position:absolute;inset:0;width:100%;height:100%;display:block}
+#motes{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+
+/* дихання всієї сцени */
+.breath{transform-box:view-box;transform-origin:683px 400px;animation:breath 24s ease-in-out infinite alternate}
+@keyframes breath{to{transform:scale(1.012)}}
+
+/* промені з вікон */
+.ray{mix-blend-mode:screen;animation:ray 7s ease-in-out infinite alternate}
+.ray.b{animation-duration:9s;animation-delay:-3s}
+@keyframes ray{0%{opacity:.25}100%{opacity:.6}}
+
+/* свічки */
+.flame{mix-blend-mode:screen;transform-box:fill-box;transform-origin:center;animation:flick 1.6s ease-in-out infinite}
+@keyframes flick{0%,100%{opacity:.75;transform:scale(1)}23%{opacity:1;transform:scale(1.15)}47%{opacity:.6;transform:scale(.92)}71%{opacity:.95;transform:scale(1.08)}}
+
+/* формули, що здіймаються з глечика */
+.formula{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:700;font-size:50px;fill:#ffe7a6;
+  paint-order:stroke;stroke:rgba(80,30,0,.55);stroke-width:4px;opacity:0;
+  animation:rise 42s linear infinite;transform-box:fill-box;transform-origin:center}
+@keyframes rise{
+  0%{opacity:0;fill:#ffffff;transform:translate(0,20px) scale(.6);filter:drop-shadow(0 0 10px #ffd27a) drop-shadow(0 0 22px #ff7a2a) blur(3px)}
+  4%{opacity:1;fill:#fff3c4;transform:translate(calc(var(--dx)*.1),0) scale(.95);filter:drop-shadow(0 0 8px #ffc35a) drop-shadow(0 0 18px #ff6a1a) blur(0)}
+  19%{opacity:1;fill:#ffe39a;transform:translate(calc(var(--dx)*.7),-170px) scale(1.1);filter:drop-shadow(0 0 8px #ffc35a) drop-shadow(0 0 16px #ff6a1a) blur(0)}
+  25%{opacity:0;fill:#ffd2a0;transform:translate(var(--dx),-235px) scale(1.2);filter:drop-shadow(0 0 4px #ffb35c) blur(10px)}
+  100%{opacity:0;transform:translate(var(--dx),-235px) scale(1.2)}}
+
+/* окуляри чарівника — відблиск */
+.glint{transform-box:fill-box;transform-origin:center;animation:glint 6s ease-in-out infinite;opacity:0}
+@keyframes glint{0%,80%,100%{opacity:0;transform:scale(.3) rotate(0)}88%{opacity:1;transform:scale(1) rotate(45deg)}}
+
+/* ===== Колби в сцені ===== */
+.sflask{cursor:pointer;outline:none}
+.sflask .lift{transform-box:fill-box;transform-origin:50% 100%;transition:transform .45s cubic-bezier(.2,.9,.3,1.4)}
+.sflask:hover .lift,.sflask:focus-visible .lift{transform:translateY(-8px) scale(1.25)}
+.sflask .pool{mix-blend-mode:screen;transition:opacity .4s;opacity:.55}
+.sflask:hover .pool,.sflask:focus-visible .pool{opacity:1}
+.sflask .glass-glow{transition:opacity .4s;opacity:.6}
+.sflask:hover .glass-glow,.sflask:focus-visible .glass-glow{opacity:1}
+.wave{animation:wave 2.6s linear infinite}
+.wave.back{animation-duration:3.8s;animation-direction:reverse;opacity:.55}
+.sflask:hover .wave{animation-duration:.8s}
+@keyframes wave{to{transform:translateX(70px)}}
+.bub{animation:bub 2.6s ease-in infinite;opacity:0}
+@keyframes bub{0%{transform:translateY(0);opacity:0}15%{opacity:.9}100%{transform:translateY(-80px);opacity:0}}
+.plate{opacity:0;transition:opacity .3s;pointer-events:none}
+.sflask:hover .plate,.sflask:focus-visible .plate,.sflask.hint .plate{opacity:1}
+.plate rect{fill:rgba(18,8,4,.85);stroke:var(--c);stroke-opacity:.8;stroke-width:1.5;transition:fill .3s}
+.plate text{font-family:'Marck Script',cursive;font-size:22px;fill:#fff3d6}
+.plate .num{font-family:'Nunito',sans-serif;font-weight:900;font-size:16px;fill:#2a0f08}
+.sflask:hover .plate rect,.sflask:focus-visible .plate rect{fill:rgba(40,16,8,.9);stroke-opacity:1}
+.sflask.hint .plate rect{animation:hint 1s ease-in-out infinite alternate}
+@keyframes hint{to{stroke:#fff;stroke-width:3}}
+.check{opacity:0;transition:opacity .4s}
+.sflask.done .check{opacity:1}
+
+/* ===== Алохомора: кришталева куля ===== */
+.orb{cursor:pointer;outline:none}
+.orb .core{mix-blend-mode:screen;transform-box:fill-box;transform-origin:center;animation:orb 3.2s ease-in-out infinite}
+@keyframes orb{0%,100%{opacity:.65;transform:scale(.95)}50%{opacity:1;transform:scale(1.08)}}
+.orb:hover .core,.orb:focus-visible .core{animation-duration:1s}
+.orb .bolt{mix-blend-mode:screen;opacity:0;animation:bolt 2.8s steps(1) infinite}
+.orb .bolt.b2{animation-delay:-1.3s}
+@keyframes bolt{0%{opacity:0}8%{opacity:1}12%{opacity:.2}16%{opacity:.9}22%{opacity:0}}
+.aloh-word{font-family:'Marck Script',cursive;font-size:66px;fill:url(#goldText);
+  stroke:#fff1c2;stroke-width:1.2;stroke-dasharray:900;stroke-dashoffset:900;
+  filter:url(#goldGlow);animation:write 3.2s ease-out .6s forwards}
+@keyframes write{to{stroke-dashoffset:0}}
+.aloh-sub{font-family:'Nunito',sans-serif;font-weight:900;font-size:15px;letter-spacing:2.5px;fill:#fff1c9;paint-order:stroke;stroke:rgba(10,4,24,.85);stroke-width:4px}
+.orb .halo-ring{fill:none;stroke:#cdb6ff;stroke-width:2;transform-box:fill-box;transform-origin:center;animation:ring 2.6s ease-out infinite}
+.orb .halo-ring.r2{animation-delay:1.3s}
+@keyframes ring{from{opacity:.9;transform:scale(1)}to{opacity:0;transform:scale(1.9)}}
+.orb:hover .aloh-word,.orb:focus-visible .aloh-word{filter:url(#goldGlowStrong)}
+.aloh-back{opacity:.62}
+.aloh-glow{mix-blend-mode:screen;opacity:.25;animation:alohPulse 2.4s ease-in-out infinite}
+@keyframes alohPulse{0%,100%{opacity:.15}50%{opacity:.5}}
+.chev{animation:chev 1.4s ease-in-out infinite}
+@keyframes chev{0%,100%{transform:translateY(0);opacity:.6}50%{transform:translateY(6px);opacity:1}}
+
+/* ===== Заголовок ===== */
+.head{position:absolute;top:0;left:0;z-index:3;text-align:left;pointer-events:none;
+  padding:clamp(14px,3vh,34px) clamp(80px,10vw,180px) clamp(40px,7vh,80px) clamp(16px,2.6vw,40px);
+  background:radial-gradient(ellipse 100% 100% at 0% 0%,rgba(8,4,2,.86) 0%,rgba(8,4,2,.62) 45%,rgba(8,4,2,0) 78%)}
+.head h1{font-family:'Marck Script',cursive;font-weight:400;line-height:.95;font-size:clamp(2.6rem,7.4vh,5rem);
+  background:linear-gradient(180deg,#fff8dc 0%,#ffe08a 45%,#f0a83a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 2px 1px rgba(30,8,0,1)) drop-shadow(0 0 14px rgba(255,170,60,.55))}
+.head h1 span{display:block;font-size:.7em;margin-top:6px;padding-left:.15em}
+
+/* ===== Вузькі екрани: список під сценою ===== */
+.narrow #flasks,.narrow .orb text{display:none}
+.list{display:none}
+@media (max-aspect-ratio:7/5){
+  body{overflow:auto}
+  .stage{height:62vh;height:62svh}
+  .list{display:grid;gap:12px;padding:20px 14px 34px;max-width:620px;margin:0 auto}
+  .list button,.list a{display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:18px;text-decoration:none;color:#fff7ec;cursor:pointer;
+    font:800 1.08rem 'Nunito',sans-serif;text-align:left;border:1px solid color-mix(in srgb,var(--c) 70%,transparent);
+    background:linear-gradient(120deg,color-mix(in srgb,var(--c) 22%,#1a0f24),#140a1c)}
+  .list i{flex:0 0 34px;height:34px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:900;color:#2a0f08;
+    background:radial-gradient(circle at 35% 30%,#fff,var(--c) 70%);box-shadow:0 0 14px var(--c)}
+  .list .al{--c:#b38cff;justify-content:center;flex-direction:column;gap:2px;font-family:'Marck Script',cursive;font-weight:400;font-size:2.3rem;line-height:1;padding:14px;color:#ffe39a;text-shadow:0 0 14px rgba(255,190,80,.6);background:radial-gradient(ellipse at 50% 120%,rgba(179,140,255,.55),#1a0f2c 70%);box-shadow:0 0 26px rgba(179,140,255,.45)}
+  .head h1{font-size:clamp(1.9rem,8vw,3rem)}
+  .head{padding-right:60px}
+}
+
+/* ===== Модальні вікна ===== */
+.modal{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:clamp(10px,3vw,40px);
+  background:rgba(8,4,14,.8);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);opacity:0;visibility:hidden;transition:opacity .35s,visibility .35s}
+.modal.open{opacity:1;visibility:visible}
+.sheet{position:relative;width:min(1100px,100%);max-height:100%;overflow:auto;border-radius:24px;padding:clamp(18px,3vw,34px);
+  background:linear-gradient(160deg,rgba(48,26,14,.95),rgba(22,10,26,.96));border:1px solid rgba(255,214,107,.4);
+  box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 60px rgba(255,170,80,.18);transform:translateY(24px) scale(.96);transition:transform .45s cubic-bezier(.2,.9,.3,1.2)}
+.modal.open .sheet{transform:none}
+.sheet h2{font-family:'Marck Script',cursive;font-weight:400;font-size:clamp(2.2rem,5vw,3rem);line-height:1.05;text-align:center;color:#ffe39a;
+  text-shadow:0 0 18px rgba(255,190,80,.5),0 2px 3px #000;margin:0 44px 6px}
+.lead{text-align:center;color:#f6e3d0;font-weight:700;font-size:1.08rem;margin-bottom:18px;line-height:1.55}
+.sheet img{display:block;width:100%;height:auto;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.sheet video{display:block;width:100%;max-height:68vh;border-radius:16px;background:#000;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.close{position:sticky;float:right;top:0;margin:-6px -6px 0 0;width:46px;height:46px;border-radius:50%;cursor:pointer;z-index:3;
+  border:1px solid rgba(255,255,255,.4);background:rgba(20,10,8,.85);color:#fff;font-size:1.6rem;line-height:1;display:grid;place-items:center;transition:transform .3s,background .3s}
+.close:hover,.close:focus-visible{transform:rotate(90deg) scale(1.08);background:#c9772b;outline:none}
+.cta{display:inline-flex;align-items:center;gap:10px;margin-top:18px;padding:14px 34px;border-radius:999px;text-decoration:none;cursor:pointer;border:none;
+  font:900 1.1rem 'Nunito',sans-serif;letter-spacing:.04em;color:#2a0f08;background:linear-gradient(100deg,#ffe9a8,#ffc94d 50%,#ffab6b);
+  box-shadow:0 0 30px rgba(255,200,80,.5),0 8px 20px rgba(0,0,0,.4);transition:transform .3s}
+.cta:hover,.cta:focus-visible{transform:translateY(-3px) scale(1.04);outline:none}
+.center{text-align:center}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:22px}
+.card{cursor:pointer;text-align:left;font:inherit;color:inherit;padding:20px 18px;border-radius:18px;border:1px solid rgba(255,255,255,.18);
+  background:linear-gradient(150deg,rgba(255,255,255,.08),rgba(255,255,255,.02));transition:transform .3s,border-color .3s,box-shadow .3s,background .3s}
+.card:hover,.card:focus-visible,.card.sel{transform:translateY(-5px);border-color:var(--gold);box-shadow:0 0 26px rgba(255,214,107,.4);outline:none;background:linear-gradient(150deg,rgba(255,214,107,.18),rgba(255,140,80,.08))}
+.card .em{font-size:2rem}.card h3{font-size:1.2rem;font-weight:900;margin:6px 0 4px}.card p{font-size:.98rem;color:#f3e2d4;line-height:1.45;font-weight:600}
+.result{margin-top:18px;padding:16px;border-radius:16px;text-align:center;font-weight:800;font-size:1.12rem;min-height:58px;display:flex;align-items:center;justify-content:center;border:2px dashed rgba(255,214,107,.55);color:#fff3cf;transition:background .4s}
+.result.got{background:rgba(255,214,107,.16);border-style:solid}
+.toast{position:fixed;left:50%;bottom:24px;z-index:30;transform:translate(-50%,220%);visibility:hidden;padding:14px 26px;border-radius:999px;max-width:92vw;text-align:center;
+  background:linear-gradient(100deg,#ffe9a8,#ffc94d,#ffab6b);color:#2a0f08;font-weight:900;box-shadow:0 10px 30px rgba(0,0,0,.5),0 0 40px rgba(255,200,80,.6);transition:transform .6s cubic-bezier(.2,.9,.3,1.3)}
+.toast.show{transform:translate(-50%,0);visibility:visible}
+
+@media (prefers-reduced-motion:reduce){*{animation:none !important}.aloh-word{stroke-dashoffset:0}.formula{opacity:0}}
+</style>
+</head>
+<body>
+
+<section class="stage" id="stage">
+<svg id="scene" viewBox="0 0 1365 768" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-label="Кабінет чарівника з магічними колбами">
+  <defs>
+    <!-- живий дим: зміщення пікселів анімованим шумом -->
+    <filter id="smoke" filterUnits="userSpaceOnUse" x="560" y="200" width="760" height="380">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.03" numOctaves="2" seed="3" result="n">
+        <animate attributeName="baseFrequency" dur="7s" repeatCount="indefinite" values="0.012 0.03;0.016 0.038;0.011 0.026;0.012 0.03" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1;.45 0 .55 1"/>
+      </feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="26" xChannelSelector="R" yChannelSelector="G">
+        <animate attributeName="scale" dur="4s" repeatCount="indefinite" values="16;32;22;30;16"/>
+      </feDisplacementMap>
+    </filter>
+    <radialGradient id="soft"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#fff"/><stop offset="1" stop-color="#000"/></radialGradient>
+    <mask id="smokeMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1365" height="768">
+      <rect width="1365" height="768" fill="#000"/>
+      <ellipse cx="716" cy="378" rx="100" ry="128" fill="url(#soft)"/>
+      <ellipse cx="1102" cy="372" rx="118" ry="96" fill="url(#soft)"/>
+    </mask>
+
+    <!-- чарівник: яскравіший, тепліший, виразніший -->
+    <filter id="vivid" color-interpolation-filters="sRGB">
+      <feComponentTransfer>
+        <feFuncR type="linear" slope="1.28" intercept="-0.02"/>
+        <feFuncG type="linear" slope="1.2" intercept="-0.02"/>
+        <feFuncB type="linear" slope="1.1" intercept="-0.02"/>
+      </feComponentTransfer>
+      <feColorMatrix type="saturate" values="1.15"/>
+    </filter>
+    <mask id="wizMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1365" height="768">
+      <rect width="1365" height="768" fill="#000"/>
+      <ellipse cx="528" cy="440" rx="150" ry="190" fill="url(#soft)"/>
+    </mask>
+
+    <radialGradient id="warm"><stop offset="0" stop-color="#ffb35c" stop-opacity=".55"/><stop offset="1" stop-color="#ff8a2a" stop-opacity="0"/></radialGradient>
+    <radialGradient id="candle"><stop offset="0" stop-color="#fff2c0"/><stop offset=".25" stop-color="#ffc35a" stop-opacity=".8"/><stop offset="1" stop-color="#ff8a2a" stop-opacity="0"/></radialGradient>
+    <radialGradient id="blue"><stop offset="0" stop-color="#8fb8ff" stop-opacity=".8"/><stop offset="1" stop-color="#5a6cff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="orbCore"><stop offset="0" stop-color="#fff"/><stop offset=".25" stop-color="#d9c8ff" stop-opacity=".95"/><stop offset=".6" stop-color="#8f6bff" stop-opacity=".45"/><stop offset="1" stop-color="#5a3cff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="rayG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#cfe2ff" stop-opacity=".55"/><stop offset="1" stop-color="#cfe2ff" stop-opacity="0"/></linearGradient>
+    <linearGradient id="goldText" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6d0"/><stop offset=".55" stop-color="#ffd25e"/><stop offset="1" stop-color="#d48a1c"/></linearGradient>
+    <filter id="goldGlow" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur in="SourceAlpha" stdDeviation="2" result="b"/><feFlood flood-color="#2a0d00" flood-opacity=".85"/><feComposite in2="b" operator="in" result="sh"/><feGaussianBlur in="SourceGraphic" stdDeviation="7" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="sh"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="goldGlowStrong" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur in="SourceGraphic" stdDeviation="12" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="blur6"><feGaussianBlur stdDeviation="6"/></filter>
+    <radialGradient id="vign" cx="50%" cy="48%" r="75%"><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".6"/></radialGradient>
+    <path id="star4" d="M0 -9 L2 -2 L9 0 L2 2 L0 9 L-2 2 L-9 0 L-2 -2 Z"/>
+  </defs>
+
+  <g class="breath">
+    <image id="bg" href="https://raw.githubusercontent.com/a64151368-dot/Stepin/main/Gemini_Generated_Image_2l9zbv2l9zbv2l9z.jpeg" x="0" y="0" width="1365" height="768" preserveAspectRatio="xMidYMid slice"/>
+    <!-- виразніший чарівник -->
+    <g mask="url(#wizMask)"><use href="#bg" filter="url(#vivid)"/></g>
+    <!-- живий дим над глечиком і над казаном -->
+    <g mask="url(#smokeMask)"><use href="#bg" filter="url(#smoke)"/></g>
+
+    <!-- промені з вікон -->
+    <polygon class="ray" points="95,0 250,0 560,520 300,560" fill="url(#rayG)"/>
+    <polygon class="ray b" points="380,40 455,40 640,430 520,450" fill="url(#rayG)"/>
+
+    <!-- тепле світло глечика на обличчі чарівника -->
+    <ellipse class="flame" cx="640" cy="470" rx="190" ry="170" fill="url(#warm)" style="animation-duration:3.4s"/>
+    <!-- синє сяйво казана -->
+    <ellipse class="flame" cx="1095" cy="452" rx="120" ry="50" fill="url(#blue)" style="animation-duration:2.6s"/>
+    <!-- свічки -->
+    <g>
+      <circle class="flame" cx="1013" cy="262" r="20" fill="url(#candle)"/>
+      <circle class="flame" cx="1031" cy="250" r="20" fill="url(#candle)" style="animation-delay:-.5s"/>
+      <circle class="flame" cx="1048" cy="262" r="20" fill="url(#candle)" style="animation-delay:-1s"/>
+      <circle class="flame" cx="911" cy="420" r="16" fill="url(#candle)" style="animation-delay:-.3s"/>
+      <circle class="flame" cx="921" cy="418" r="16" fill="url(#candle)" style="animation-delay:-.9s"/>
+      <circle class="flame" cx="313" cy="340" r="14" fill="url(#candle)" style="animation-delay:-.2s"/>
+      <circle class="flame" cx="326" cy="334" r="14" fill="url(#candle)" style="animation-delay:-.7s"/>
+      <circle class="flame" cx="338" cy="340" r="14" fill="url(#candle)" style="animation-delay:-1.2s"/>
+    </g>
+    <!-- відблиск в окулярах -->
+    <use class="glint" href="#star4" x="0" y="0" transform="translate(522 390)" fill="#fff"/>
+    <use class="glint" href="#star4" transform="translate(561 389) scale(.8)" fill="#fff" style="animation-delay:-3s"/>
+
+    <!-- формули, що піднімаються з глечика -->
+    <g id="formulas"></g>
+
+    <!-- ===== АЛОХОМОРА: кришталева куля ===== -->
+    <g class="orb" id="orb" tabindex="0" role="button" aria-label="Алохомора — відкрити відео й почати урок">
+      <title>Алохомора! Торкнись кулі, щоб почати</title>
+      <circle cx="205" cy="462" r="120" fill="transparent"/>
+      <circle class="halo-ring" cx="205" cy="462" r="60"/>
+      <circle class="halo-ring r2" cx="205" cy="462" r="60"/>
+      <circle class="core" cx="205" cy="462" r="78" fill="url(#orbCore)"/>
+      <path class="bolt" d="M205 462 L182 432 L192 428 L168 404" stroke="#e8dcff" stroke-width="2.5" fill="none" filter="url(#blur6)"/>
+      <path class="bolt" d="M205 462 L182 432 L192 428 L168 404" stroke="#fff" stroke-width="1.5" fill="none"/>
+      <path class="bolt b2" d="M205 462 L232 440 L226 432 L250 418" stroke="#fff" stroke-width="1.5" fill="none"/>
+      <g fill="#fff6c8">
+        <use href="#star4"><animateMotion dur="4s" repeatCount="indefinite" path="M205 462 m-82 0 a82 30 0 1 0 164 0 a82 30 0 1 0 -164 0"/></use>
+        <use href="#star4" transform="scale(.6)"><animateMotion dur="4s" begin="-2s" repeatCount="indefinite" path="M205 462 m-82 0 a82 30 0 1 0 164 0 a82 30 0 1 0 -164 0"/></use>
+      </g>
+      <g id="alohLabel">
+      <ellipse class="aloh-back" cx="268" cy="336" rx="200" ry="74" fill="#0c0612" filter="url(#blur6)"/>
+      <ellipse class="aloh-glow" cx="268" cy="330" rx="170" ry="46" fill="#ffc35a" filter="url(#blur6)"/>
+      <text class="aloh-word" x="268" y="346" text-anchor="middle">Алохомора!</text>
+      <text class="aloh-sub" x="268" y="374" text-anchor="middle">ПОЧНИ ТУТ — ТОРКНИСЬ КУЛІ</text>
+      </g>
+      <g class="chev" fill="none" stroke="#ffe39a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M222 384 l10 9 l10 -9"/><path d="M222 396 l10 9 l10 -9" opacity=".55"/>
+      </g>
+    </g>
+
+    <!-- м'яке світло вздовж полиці з колбами -->
+    <ellipse cx="1246" cy="272" rx="120" ry="12" fill="#ffcf7a" opacity=".28" style="mix-blend-mode:screen" filter="url(#blur6)"/>
+    <ellipse cx="1242" cy="238" rx="120" ry="58" fill="#120806" opacity=".35" filter="url(#blur6)"/>
+    <!-- колби додаються скриптом -->
+    <g id="flasks"></g>
+
+    <rect width="1365" height="768" fill="url(#vign)" pointer-events="none"/>
+  </g>
+</svg>
+<canvas id="motes" aria-hidden="true"></canvas>
+
+<header class="head">
+  <h1>Властивості степеня<span>із раціональним показником</span></h1>
+</header>
+</section>
+
+<nav class="list" id="list" aria-label="Завдання"></nav>
+
+<!-- ===== МОДАЛЬНІ ВІКНА ===== -->
+<div class="modal" id="m-video" role="dialog" aria-modal="true" aria-label="Відео">
+  <div class="sheet">
+    <button class="close" data-close aria-label="Закрити">&times;</button>
+    <h2>Алохомора!</h2>
+    <p class="lead">Двері уроку відчинено. Переглянь відео — а потім обирай першу колбу.</p>
+    <video id="vid" controls playsinline preload="none">
+      <source src="ron-2_9l7jnAwN.mp4" type="video/mp4">
+      <source src="https://raw.githubusercontent.com/a64151368-dot/Stepin/main/ron-2_9l7jnAwN.mp4" type="video/mp4">
+    </video>
+    <div class="center"><button class="cta" data-close data-next>До першої колби ✦</button></div>
+  </div>
+</div>
+<div class="modal" id="m-1" role="dialog" aria-modal="true" aria-label="Який твій настрій?">
+  <div class="sheet">
+    <button class="close" data-close aria-label="Закрити">&times;</button>
+    <h2>Який твій настрій?</h2>
+    <p class="lead">Який ти персонаж сьогодні? Обери того, хто найкраще описує твій стан.</p>
+    <img loading="lazy" src="https://raw.githubusercontent.com/a64151368-dot/Stepin/main/%D0%B3%D0%B0%D1%80%D1%80%D1%962.jpg" alt="Який ти персонаж із «Гаррі Поттера»?">
+  </div>
+</div>
+<div class="modal" id="m-2" role="dialog" aria-modal="true" aria-label="Сріблясті нитки">
+  <div class="sheet">
+    <button class="close" data-close aria-label="Закрити">&times;</button>
+    <h2>Сріблясті нитки</h2>
+    <p class="lead">Витягни зі спогадів усе, що знаєш про степені, — і сплети нитки в одне ціле.</p>
+    <img loading="lazy" src="https://lh3.googleusercontent.com/d/1Ei54bSW9b0U9hdXWkEnYu66k0Q79DpYk" alt="Сріблясті нитки">
+  </div>
+</div>
+<div class="modal" id="m-4" role="dialog" aria-modal="true" aria-label="Кабінет віщування">
+  <div class="sheet">
+    <button class="close" data-close aria-label="Закрити">&times;</button>
+    <h2>Кабінет віщування</h2>
+    <p class="lead">Вдивись у свій шлях: що ти забираєш із собою після уроку?</p>
+    <img loading="lazy" src="https://raw.githubusercontent.com/a64151368-dot/Stepin/main/%D0%A0%D0%B5%D1%84%D0%BB%D0%B5%D0%BA%D1%81%D1%96%D1%8F.png" alt="Рефлексія: що я забираю з собою">
+    <div class="cards">
+      <button class="card" data-msg="✨ Магічне прозріння! Властивості степеня підкорилися тобі з легкістю Люмосу!"><span class="em">🌟</span><h3>Прозріння</h3><p>Тема розкрита повністю, завдання виконувалися легко та впевнено.</p></button>
+      <button class="card" data-msg="🌙 Легкий туман: ще трохи практики — і чари спрацюють бездоганно!"><span class="em">🌌</span><h3>Легкий туман</h3><p>Матеріал зрозумілий, але окремі обчислення ще потребують практики.</p></button>
+      <button class="card" data-msg="⚡ Справжнє випробування! Порада Магістра і повторення правил — і ти переможеш!"><span class="em">⚡</span><h3>Випробування</h3><p>Тема виявилася складною — варто повторити заклинання та правила.</p></button>
+    </div>
+    <div class="result" id="result">Торкнися картки, щоб розкрити своє видіння…</div>
+  </div>
+</div>
+<div class="modal" id="m-5" role="dialog" aria-modal="true" aria-label="Виручай-кімната">
+  <div class="sheet" style="max-width:720px;text-align:center">
+    <button class="close" data-close aria-label="Закрити">&times;</button>
+    <h2>Виручай-кімната</h2>
+    <p class="lead">Тут на тебе чекає фінальний вебквест! Застосуй усі здобуті знання, розгадай магічні загадки та знайди вихід із таємничої кімнати.</p>
+    <a class="cta" href="https://vseosvita.ua/webquest/start/bhcmf715" target="_blank" rel="noopener">Розпочати вебквест ⚡</a>
+  </div>
+</div>
+<div class="toast" id="toast">🏆 Усі 5 колб відкрито! Ти — справжній чарівник степенів!</div>
+
+<script>
+(function(){
+var NS='http://www.w3.org/2000/svg';
+var svg=document.getElementById('scene'), stage=document.getElementById('stage');
+var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- Кадрування: тримаємо в кадрі кулю й колби ---------- */
+var W=1365,H=768;
+function frame(){
+  var r=stage.getBoundingClientRect(), a=r.width/r.height, x=0,y=0,w=W,h=H;
+  if(a<W/H){ w=H*a; x=W-w; }
+  else { h=W/a; y=Math.min(Math.max(430-h/2,0),H-h); }
+  svg.setAttribute('viewBox',[x,y,w,h].join(' '));
+  svg.classList.toggle('narrow',a<1.4);
+  // напис «Алохомора» завжди повністю в кадрі
+  var lab=document.getElementById('alohLabel'); if(lab) lab.setAttribute('transform','translate('+Math.max(0,x+185-268)+' 0)');
+}
+frame(); addEventListener('resize',frame);
+
+/* ---------- Формули з глечика ---------- */
+var F=[
+  [['a'],['m/n',1],[' = '],['n',1],['√a'],['m',1]],
+  [['a'],['p',1],['·a'],['q',1],[' = a'],['p+q',1]],
+  [['(a'],['p',1],[')'],['q',1],[' = a'],['pq',1]],
+  [['a'],['p',1],[' : a'],['q',1],[' = a'],['p−q',1]],
+  [['(ab)'],['p',1],[' = a'],['p',1],['b'],['p',1]],
+  [['a'],['−p',1],[' = 1/a'],['p',1]]
+];
+var fg=document.getElementById('formulas');
+F.forEach(function(parts,i){
+  var t=document.createElementNS(NS,'text'); t.setAttribute('class','formula');
+  t.setAttribute('x',716); t.setAttribute('y',330); t.setAttribute('text-anchor','middle');
+  var up=false;
+  parts.forEach(function(p){
+    var s=document.createElementNS(NS,'tspan'); s.textContent=p[0];
+    if(p[1]&&!up){s.setAttribute('dy','-17');s.setAttribute('font-size','28');up=true;}
+    else if(!p[1]&&up){s.setAttribute('dy','17');up=false;}
+    else if(p[1]) s.setAttribute('font-size','28');
+    t.appendChild(s);
+  });
+  t.style.animationDelay=(i*7-3)+'s';
+  t.style.setProperty('--dx',((i%2?1:-1)*(15+i*9))+'px');
+  fg.appendChild(t);
+});
+
+/* ---------- Колби ---------- */
+var FL=[
+  {n:1,title:'Який твій настрій?',c:'#b07bff',c2:'#ff8ccf',shape:'round',level:112,x:1156,y:282.6,s:.41,open:'m-1'},
+  {n:2,title:'Сріблясті нитки',c:'#8fe9ff',c2:'#d6c8ff',shape:'vial',level:92,x:1201,y:279.2,s:.41,open:'m-2'},
+  {n:3,title:'Полігон заклинань',c:'#ffc23d',c2:'#ff8a3d',shape:'cone',level:116,x:1246,y:275.8,s:.41,href:'https://canva.link/uw9mtherzi8qjyp'},
+  {n:4,title:'Виручай-кімната',c:'#3ee0b0',c2:'#b4ff7a',shape:'diamond',level:112,x:1291,y:272.4,s:.41,open:'m-5'},
+  {n:5,title:'Кабінет віщування',c:'#ff6fae',c2:'#ffb3d9',shape:'heart',level:106,x:1336,y:269.1,s:.41,open:'m-4'}
+];
+var SH={
+  round:'M58 30H82V82A54 54 0 1 1 58 82Z',
+  vial:'M56 26H84V44Q98 50 98 66V170Q98 190 78 190H62Q42 190 42 170V66Q42 50 56 44Z',
+  cone:'M60 30H80V88L124 176Q128 190 112 190H28Q12 190 16 176L60 88Z',
+  heart:'M60 30H80V74C120 58 146 104 122 140L70 190L18 140C-6 104 20 58 60 74Z',
+  diamond:'M60 30H80V68L126 124L70 190L14 124L60 68Z'
+};
+function wave(y){var d='M-140 '+y;for(var i=0;i<6;i++)d+=' q17.5 -7 35 0 t35 0';return d+' V200 H-140 Z';}
+
+var done={};
+try{done=JSON.parse(localStorage.getItem('stepin-done')||'{}')||{};}catch(e){done={};}
+function save(){try{localStorage.setItem('stepin-done',JSON.stringify(done));}catch(e){}}
+
+var host=document.getElementById('flasks'), list=document.getElementById('list');
+var al=document.createElement('button'); al.className='al'; al.type='button'; al.innerHTML='Алохомора! <small style="font:800 .8rem Nunito,sans-serif;letter-spacing:.08em;opacity:.85">ПОЧАТИ УРОК</small>'; al.onclick=startLesson; list.appendChild(al);
+
+FL.forEach(function(f){
+  var id='k'+f.n, body=SH[f.shape], wrap;
+  if(f.href){wrap=document.createElementNS(NS,'a');wrap.setAttribute('href',f.href);wrap.setAttribute('target','_blank');wrap.setAttribute('rel','noopener');}
+  else{wrap=document.createElementNS(NS,'g');wrap.setAttribute('tabindex','0');wrap.setAttribute('role','button');}
+  wrap.setAttribute('class','sflask'+(done[f.n]?' done':'')); wrap.setAttribute('aria-label','Колба '+f.n+': '+f.title);
+  wrap.dataset.n=f.n; wrap.style.setProperty('--c',f.c);
+  var bub='';for(var i=0;i<6;i++){bub+='<circle class="bub" cx="'+(50+Math.round(Math.random()*40))+'" cy="182" r="'+(2+Math.random()*4).toFixed(1)+'" fill="rgba(255,255,255,.75)" style="animation-delay:'+(-Math.random()*2.6).toFixed(2)+'s"/>';}
+  var tx=f.x-70*f.s, ty=f.y-190*f.s;
+  wrap.innerHTML=
+   '<defs><clipPath id="'+id+'c"><path d="'+body+'"/></clipPath>'+
+   '<linearGradient id="'+id+'l" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+f.c2+'"/><stop offset="1" stop-color="'+f.c+'"/></linearGradient>'+
+   '<radialGradient id="'+id+'p"><stop offset="0" stop-color="'+f.c+'" stop-opacity=".9"/><stop offset="1" stop-color="'+f.c+'" stop-opacity="0"/></radialGradient>'+
+   '<linearGradient id="'+id+'k" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6a3c1c"/><stop offset=".5" stop-color="#c08a55"/><stop offset="1" stop-color="#5a2f14"/></linearGradient></defs>'+
+   
+   '<ellipse class="pool" cx="'+f.x+'" cy="'+(f.y-4)+'" rx="'+(110*f.s)+'" ry="'+(30*f.s)+'" fill="url(#'+id+'p)"/>'+
+   '<g class="lift"><g transform="translate('+tx.toFixed(1)+' '+ty.toFixed(1)+') scale('+f.s+')">'+
+     '<ellipse class="glass-glow" cx="70" cy="135" rx="80" ry="72" fill="url(#'+id+'p)" style="mix-blend-mode:screen"/>'+
+     '<path d="'+body+'" fill="rgba(255,255,255,.08)"/>'+
+     '<g clip-path="url(#'+id+'c)">'+
+       '<path class="wave back" d="'+wave(f.level-4)+'" fill="'+f.c2+'"/>'+
+       '<path class="wave" d="'+wave(f.level)+'" fill="url(#'+id+'l)"/>'+ bub +
+       '<ellipse cx="70" cy="'+(f.level+40)+'" rx="40" ry="26" fill="#fff" opacity=".2"/>'+
+     '</g>'+
+     '<path d="'+body+'" fill="none" stroke="rgba(255,255,255,.88)" stroke-width="2.8" stroke-linejoin="round"/>'+
+     '<path d="M50 '+(f.shape==='vial'?70:100)+' Q40 130 50 165" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".5"/>'+
+     '<rect x="55" y="10" width="30" height="24" rx="6" fill="url(#'+id+'k)" stroke="rgba(0,0,0,.4)"/>'+
+     '<path d="M56 36 Q70 42 84 36" stroke="'+f.c+'" stroke-width="3" fill="none"/>'+
+     '<circle cx="70" cy="-6" r="19" fill="'+f.c+'" stroke="#fff" stroke-width="3"/><text x="70" y="3" text-anchor="middle" font-family="Nunito,sans-serif" font-weight="900" font-size="26" fill="#2a0f08">'+f.n+'</text>'+
+     '<g class="check" transform="translate(112 34)"><circle r="15" fill="#3ddc97" stroke="#fff" stroke-width="3"/><path d="M-6 0 L-1 5 L7 -5" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round"/></g>'+
+   '</g></g>'+
+   '<g class="plate" transform="translate('+Math.min(f.x,1238)+' '+(f.y-190*f.s-30)+')"><rect x="-80" y="-15" width="160" height="30" rx="15"/>'+
+     '<circle cx="-62" cy="0" r="11" fill="'+f.c+'"/><text class="num" x="-62" y="5.5" text-anchor="middle">'+f.n+'</text>'+
+     '<text class="ttl" x="-44" y="7">'+f.title+'</text></g>';
+  host.appendChild(wrap);
+
+  // анімація левітації (SMIL, щоб не конфліктувала з наведенням)
+  var lift=wrap.querySelector('.lift'), inner=lift.firstChild;
+  var bob=document.createElementNS(NS,'animateTransform');
+  bob.setAttribute('attributeName','transform');bob.setAttribute('type','translate');bob.setAttribute('additive','sum');
+  bob.setAttribute('values','0 0;0 -2;0 0');bob.setAttribute('dur',(4+f.n*.4)+'s');bob.setAttribute('repeatCount','indefinite');bob.setAttribute('begin',(-f.n)+'s');
+  inner.appendChild(bob);
+
+  function act(e){
+    magic(); var r=wrap.getBoundingClientRect(); burst(r.left+r.width/2,r.top+r.height*.4,f.c);
+    mark(f.n); if(f.open) openModal(f.open);
+  }
+  wrap.addEventListener('click',act);
+  if(!f.href) wrap.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();act(e);}});
+
+  // дубль у списку для вузьких екранів
+  var b=document.createElement(f.href?'a':'button');
+  if(f.href){b.href=f.href;b.target='_blank';b.rel='noopener';}else b.type='button';
+  b.style.setProperty('--c',f.c); b.innerHTML='<i>'+f.n+'</i>'+f.title;
+  b.addEventListener('click',function(){magic();mark(f.n);if(f.open)openModal(f.open);});
+  list.appendChild(b);
+});
+
+// підігнати ширину табличок під текст
+function fitPlates(){
+  document.querySelectorAll('.plate').forEach(function(p){
+    var t=p.querySelector('.ttl'), r=p.querySelector('rect'), bb=t.getBBox(), w=bb.width+56;
+    r.setAttribute('x',-w/2); r.setAttribute('width',w);
+    p.querySelector('circle').setAttribute('cx',-w/2+18); p.querySelector('.num').setAttribute('x',-w/2+18);
+    t.setAttribute('x',-w/2+38);
+  });
+}
+fitPlates(); if(document.fonts&&document.fonts.ready) document.fonts.ready.then(fitPlates);
+
+function mark(n){
+  var before=Object.keys(done).length; done[n]=1; save();
+  var el=document.querySelector('.sflask[data-n="'+n+'"]'); el.classList.add('done');
+  document.querySelectorAll('.sflask.hint').forEach(function(x){x.classList.remove('hint')});
+  if(before<5&&Object.keys(done).length===5) setTimeout(celebrate,700);
+}
+
+/* ---------- Модальні вікна ---------- */
+var lastFocus=null;
+function openModal(id){lastFocus=document.activeElement;var m=document.getElementById(id);m.classList.add('open');setTimeout(function(){var c=m.querySelector('.close');c&&c.focus();},50);}
+function closeModal(m){m.classList.remove('open');var v=m.querySelector('video');if(v)v.pause();lastFocus&&lastFocus.focus&&lastFocus.focus();}
+document.querySelectorAll('.modal').forEach(function(m){
+  m.addEventListener('click',function(e){
+    if(e.target===m) closeModal(m);
+    var c=e.target.closest('[data-close]'); if(c){closeModal(m); if(c.hasAttribute('data-next')) hintNext();}
+  });
+});
+addEventListener('keydown',function(e){if(e.key==='Escape'){var m=document.querySelector('.modal.open');if(m)closeModal(m);}});
+function hintNext(){var f=FL.filter(function(x){return !done[x.n]})[0];if(!f)return;document.querySelector('.sflask[data-n="'+f.n+'"]').classList.add('hint');}
+
+function startLesson(e){
+  magic(); var o=document.getElementById('orb').getBoundingClientRect(); burst(o.left+o.width/2,o.top+o.height*.6,'#cdb6ff');
+  openModal('m-video'); var v=document.getElementById('vid'); try{v.play().catch(function(){});}catch(err){}
+}
+var orb=document.getElementById('orb');
+orb.addEventListener('click',startLesson);
+orb.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();startLesson();}});
+document.getElementById('vid').addEventListener('ended',function(){closeModal(document.getElementById('m-video'));hintNext();});
+
+document.querySelectorAll('.card').forEach(function(c){
+  c.addEventListener('click',function(e){magic();burst(e.clientX,e.clientY,'#ffd66b');
+    document.querySelectorAll('.card').forEach(function(x){x.classList.remove('sel')});c.classList.add('sel');
+    var r=document.getElementById('result');r.textContent=c.dataset.msg;r.classList.add('got');});
+});
+
+/* ---------- Звук ---------- */
+var actx=null;
+function magic(){
+  try{actx=actx||new(window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume();
+    var now=actx.currentTime;[523.25,659.25,783.99,1046.5,1318.51].forEach(function(fq,i){
+      var o=actx.createOscillator(),g=actx.createGain(),t=now+i*.06;o.type='sine';o.frequency.setValueAtTime(fq,t);
+      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.12,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+.5);
+      o.connect(g);g.connect(actx.destination);o.start(t);o.stop(t+.5);});
+  }catch(e){}
+}
+
+/* ---------- Порошинки у світлі + іскри ---------- */
+var cv=document.getElementById('motes'),cx=cv.getContext('2d'),P=[],dpr=Math.min(devicePixelRatio||1,2);
+function size(){var r=stage.getBoundingClientRect();cv.width=r.width*dpr;cv.height=r.height*dpr;}
+size();addEventListener('resize',size);
+function mote(){return{x:Math.random()*cv.width,y:Math.random()*cv.height,vx:(Math.random()*.25+.05)*dpr,vy:(Math.random()-.5)*.15*dpr,r:(.5+Math.random()*1.4)*dpr,a:.2+Math.random()*.5,ph:Math.random()*6,c:'255,236,190',life:Infinity};}
+for(var i=0;i<55;i++)P.push(mote());
+function burst(x,y,col){
+  var r=stage.getBoundingClientRect(); x-=r.left; y-=r.top;
+  for(var i=0;i<30;i++){var a=Math.random()*6.283,s=(1.5+Math.random()*4)*dpr;
+    P.push({x:x*dpr,y:y*dpr,vx:Math.cos(a)*s,vy:Math.sin(a)*s-1.5*dpr,r:(1.2+Math.random()*2.4)*dpr,a:1,hex:Math.random()<.5?col:'#ffffff',life:60+Math.random()*30,g:.06*dpr});}
+}
+var svgEl=document.getElementById('scene');
+function firePoint(){var p=svgEl.createSVGPoint();p.x=716;p.y=345;var m=svgEl.getScreenCTM();if(!m)return null;var q=p.matrixTransform(m),r=stage.getBoundingClientRect();return{x:(q.x-r.left)*dpr,y:(q.y-r.top)*dpr,k:m.a};}
+var t=0;
+(function loop(){
+  if(Math.random()<.3){var fp=firePoint(); if(fp&&!svgEl.classList.contains('narrow')){
+    P.push({x:fp.x+(Math.random()-.5)*110*fp.k*dpr,y:fp.y,vx:(Math.random()-.5)*.6*dpr,vy:-(1+Math.random()*1.6)*dpr,r:(.8+Math.random()*1.8)*dpr,
+      hex:['#ffd27a','#ffb35c','#fff3c4','#ffffff'][Math.random()*4|0],life:80+Math.random()*70,g:-.004*dpr});}}
+  t+=.016; cx.clearRect(0,0,cv.width,cv.height);
+  for(var i=P.length-1;i>=0;i--){var p=P[i];p.x+=p.vx;p.y+=p.vy;
+    if(p.life!==Infinity){p.vy+=p.g;p.vx*=.97;p.life--;if(p.life<=0){P.splice(i,1);continue;}
+      cx.globalAlpha=Math.min(1,p.life/60);cx.fillStyle=p.hex;cx.shadowBlur=10*dpr;cx.shadowColor=p.hex;}
+    else{if(p.x>cv.width+10){p.x=-10;p.y=Math.random()*cv.height;}
+      cx.globalAlpha=p.a*(.5+.5*Math.sin(t*2+p.ph));cx.fillStyle='rgb('+p.c+')';cx.shadowBlur=6*dpr;cx.shadowColor='rgb('+p.c+')';}
+    cx.beginPath();cx.arc(p.x,p.y,p.r,0,6.283);cx.fill();}
+  cx.globalAlpha=1;cx.shadowBlur=0;
+  if(!reduce)requestAnimationFrame(loop);
+})();
+
+function celebrate(){var el=document.getElementById('toast');el.classList.add('show');
+  for(var k=0;k<6;k++)setTimeout(function(){burst(Math.random()*innerWidth,Math.random()*innerHeight*.6,['#ffd66b','#ff9fc8','#9ff0ff'][Math.random()*3|0])},k*180);
+  setTimeout(function(){el.classList.remove('show')},5200);}
+})();
+</script>
+</body>
+</html>
